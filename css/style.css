@@ -1,5 +1,6 @@
 /* ========================================
    Abyss — The sound from Abyss
+   书页感：暖纸面，深墨字，留白即呼吸
    ======================================== */
 
 /* --- Reset --- */
@@ -11,20 +12,19 @@
 
 /* --- Custom Properties --- */
 :root {
-  --bg: #0a0a12;
-  --bg-glow: rgba(30, 55, 90, 0.12);
-  --text: #e0ddd5;
-  --text-muted: #6a6a7a;
-  --accent: #4a7c9b;
-  --accent-hover: #5a9cbd;
-  --divider: rgba(74, 124, 155, 0.3);
+  --bg: #FAF7F2;
+  --bg-alt: #F3EFE9;
+  --text: #2C2C2C;
+  --text-muted: #9A9590;
+  --accent: #5A7A8A;
+  --accent-hover: #3A5A6A;
+  --divider: #DDD8D2;
 
   --font-serif: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'STSong', Georgia, 'Times New Roman', serif;
-  --font-mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
 
-  --content-width: 640px;
+  --content-width: 600px;
   --line-height: 1.9;
-  --line-height-poem: 2.1;
+  --line-height-poem: 2.2;
 }
 
 /* --- Base --- */
@@ -43,22 +43,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Deep water glow */
-body::before {
-  content: '';
-  position: fixed;
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100vw;
-  height: 100vh;
-  background: radial-gradient(ellipse at center, var(--bg-glow) 0%, transparent 65%);
-  pointer-events: none;
-  z-index: -1;
-}
-
 ::selection {
-  background: rgba(74, 124, 155, 0.35);
+  background: rgba(90, 122, 138, 0.2);
   color: var(--text);
 }
 
@@ -81,15 +67,15 @@ a:hover {
 
 /* --- Header --- */
 .site-header {
-  padding: 2.5rem 0 0;
+  padding: 3rem 0 0;
   text-align: center;
 }
 
 .site-header .back {
   display: inline-block;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
-  letter-spacing: 0.15em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   transition: color 0.3s ease;
 }
@@ -101,8 +87,8 @@ a:hover {
 /* --- Hero (Homepage) --- */
 .hero {
   text-align: center;
-  padding: 20vh 0 4rem;
-  min-height: 60vh;
+  padding: 18vh 0 3rem;
+  min-height: 55vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -110,30 +96,30 @@ a:hover {
 }
 
 .hero-title {
-  font-size: 3.2rem;
-  font-weight: 400;
-  letter-spacing: 0.3em;
+  font-size: 2.6rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
   color: var(--text);
-  animation: fadeUp 1.4s ease forwards;
+  animation: fadeUp 1.2s ease forwards;
 }
 
 .hero-subtitle {
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   color: var(--text-muted);
-  letter-spacing: 0.2em;
-  margin-top: 1rem;
+  letter-spacing: 0.18em;
+  margin-top: 1.2rem;
   opacity: 0;
-  animation: fadeUp 1.2s ease 0.4s forwards;
+  animation: fadeUp 1s ease 0.3s forwards;
 }
 
 /* --- Divider --- */
 .divider {
-  width: 40px;
+  width: 32px;
   height: 1px;
   background: var(--divider);
-  margin: 3rem auto;
+  margin: 2.5rem auto;
   opacity: 0;
-  animation: fadeIn 1s ease 0.8s forwards;
+  animation: fadeIn 0.8s ease 0.6s forwards;
 }
 
 /* --- Writings List (Homepage) --- */
@@ -141,38 +127,36 @@ a:hover {
   list-style: none;
   padding: 0;
   opacity: 0;
-  animation: fadeUp 1s ease 1s forwards;
+  animation: fadeUp 0.8s ease 0.8s forwards;
 }
 
-.writings li {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-}
-
-.writings li:last-child {
-  border-bottom: none;
+.writings li + li {
+  border-top: 1px solid var(--divider);
 }
 
 .writings a {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  padding: 1.2rem 0;
+  padding: 1.1rem 0;
   transition: all 0.3s ease;
 }
 
 .writings a:hover {
-  padding-left: 0.5rem;
+  padding-left: 0.4rem;
+  color: var(--accent-hover);
 }
 
 .writings .title {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
 }
 
 .writings .meta {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
   white-space: nowrap;
   margin-left: 1rem;
+  font-variant-numeric: tabular-nums;
 }
 
 /* --- Footer --- */
@@ -180,53 +164,54 @@ a:hover {
   text-align: center;
   padding: 4rem 0 3rem;
   opacity: 0;
-  animation: fadeIn 1s ease 1.2s forwards;
+  animation: fadeIn 0.8s ease 1s forwards;
 }
 
 .site-footer nav {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .site-footer nav a {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
   letter-spacing: 0.1em;
-  margin: 0 1rem;
+  margin: 0 0.8rem;
 }
 
 .site-footer .copyright {
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.15);
+  font-size: 0.7rem;
+  color: var(--divider);
   letter-spacing: 0.05em;
 }
 
 /* --- Post Page --- */
 .post {
-  padding: 8rem 0 4rem;
+  padding: 6rem 0 3rem;
 }
 
 .post-header {
   text-align: center;
-  margin-bottom: 4rem;
-  animation: fadeUp 1s ease forwards;
+  margin-bottom: 3.5rem;
+  animation: fadeUp 0.8s ease forwards;
 }
 
 .post-title {
-  font-size: 2rem;
-  font-weight: 400;
-  letter-spacing: 0.15em;
-  margin-bottom: 0.8rem;
+  font-size: 1.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  margin-bottom: 0.6rem;
 }
 
 .post-date {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
 }
 
 .post-body {
   opacity: 0;
-  animation: fadeUp 1s ease 0.3s forwards;
+  animation: fadeUp 0.8s ease 0.2s forwards;
 }
 
 /* --- Poem --- */
@@ -235,7 +220,7 @@ a:hover {
 }
 
 .poem p {
-  margin-bottom: 2rem;
+  margin-bottom: 2.2rem;
 }
 
 .poem p:last-child {
@@ -257,33 +242,32 @@ a:hover {
   padding-left: 1.5rem;
   margin: 2rem 0;
   color: var(--text-muted);
-  font-style: italic;
 }
 
 /* --- Signature --- */
 .signature {
   text-align: right;
   margin-top: 4rem;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--text-muted);
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   opacity: 0;
-  animation: fadeUp 0.8s ease 0.6s forwards;
+  animation: fadeUp 0.6s ease 0.5s forwards;
 }
 
 /* --- Post Footer --- */
 .post-footer {
   text-align: center;
-  margin-top: 6rem;
-  padding-bottom: 4rem;
+  margin-top: 5rem;
+  padding-bottom: 3rem;
   opacity: 0;
-  animation: fadeIn 0.8s ease 0.8s forwards;
+  animation: fadeIn 0.6s ease 0.7s forwards;
 }
 
 .post-footer a {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   transition: color 0.3s ease;
 }
 
@@ -293,33 +277,33 @@ a:hover {
 
 /* --- About Page --- */
 .about {
-  padding: 8rem 0 4rem;
+  padding: 6rem 0 3rem;
 }
 
 .about-title {
-  font-size: 1.6rem;
-  font-weight: 400;
-  letter-spacing: 0.15em;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   text-align: center;
-  margin-bottom: 3rem;
-  animation: fadeUp 1s ease forwards;
+  margin-bottom: 2.5rem;
+  animation: fadeUp 0.8s ease forwards;
 }
 
 .about-body {
   opacity: 0;
-  animation: fadeUp 1s ease 0.3s forwards;
+  animation: fadeUp 0.8s ease 0.2s forwards;
 }
 
 .about-body p {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.4rem;
 }
 
 .about-body .en {
   color: var(--text-muted);
-  font-size: 0.88rem;
-  margin-top: 3rem;
-  padding-top: 2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 0.85rem;
+  margin-top: 2.5rem;
+  padding-top: 1.8rem;
+  border-top: 1px solid var(--divider);
 }
 
 /* --- 404 --- */
@@ -329,31 +313,31 @@ a:hover {
 }
 
 .not-found h1 {
-  font-size: 4rem;
+  font-size: 3.5rem;
   font-weight: 400;
-  color: var(--text-muted);
+  color: var(--divider);
   letter-spacing: 0.2em;
 }
 
 .not-found p {
   color: var(--text-muted);
   margin-top: 1rem;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
 }
 
 .not-found a {
   display: inline-block;
   margin-top: 2rem;
   color: var(--accent);
-  font-size: 0.85rem;
-  letter-spacing: 0.1em;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
 }
 
 /* --- Animations --- */
 @keyframes fadeUp {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -373,13 +357,13 @@ a:hover {
   }
 
   .hero {
-    padding: 15vh 0 3rem;
-    min-height: 50vh;
+    padding: 14vh 0 2.5rem;
+    min-height: 45vh;
   }
 
   .hero-title {
-    font-size: 2.4rem;
-    letter-spacing: 0.2em;
+    font-size: 2rem;
+    letter-spacing: 0.18em;
   }
 
   .container {
@@ -387,15 +371,15 @@ a:hover {
   }
 
   .post {
-    padding: 5rem 0 3rem;
+    padding: 4rem 0 2rem;
   }
 
   .about {
-    padding: 5rem 0 3rem;
+    padding: 4rem 0 2rem;
   }
 
   .writings a {
-    padding: 1rem 0;
+    padding: 0.9rem 0;
   }
 }
 
@@ -404,10 +388,6 @@ a:hover {
   body {
     background: white;
     color: #222;
-  }
-
-  body::before {
-    display: none;
   }
 
   .site-header,
