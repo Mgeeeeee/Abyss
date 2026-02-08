@@ -8,6 +8,7 @@
  *
  * 目录结构:
  *   content/posts/*.md  → posts/*.html + index.html
+ *   content/echo/*.md   → echo/*.html + echo/index.html
  *   content/about.md    → about.html
  *   templates/          → HTML 模板
  *   css/, js/           → 静态资源（不处理，直接用）
@@ -19,8 +20,10 @@ const path = require('path');
 const ROOT = __dirname;
 const CONTENT_DIR = path.join(ROOT, 'content');
 const POSTS_DIR = path.join(CONTENT_DIR, 'posts');
+const ECHO_DIR = path.join(CONTENT_DIR, 'echo');
 const TEMPLATES_DIR = path.join(ROOT, 'templates');
 const OUTPUT_POSTS_DIR = path.join(ROOT, 'posts');
+const OUTPUT_ECHO_DIR = path.join(ROOT, 'echo');
 
 // --- Front Matter Parser ---
 
@@ -45,11 +48,11 @@ function parseFrontMatter(raw) {
 
 function mdToHtml(body, type) {
   if (type === 'poem') return poemToHtml(body);
+  if (type === 'echo') return echoToHtml(body);
   return proseToHtml(body);
 }
 
 function poemToHtml(body) {
-  // 诗：空行分段，段内换行用 <br>
   const stanzas = body.split(/\n\n+/);
   return stanzas
     .map(s => {
@@ -60,19 +63,47 @@ function poemToHtml(body) {
 }
 
 function proseToHtml(body) {
-  // 散文：空行分段
-  // 支持 ---en--- 分隔符（用于关于页的中英文分区）
   const parts = body.split('---en---');
-
   let html = paragraphs(parts[0]);
-
   if (parts[1]) {
     html += '\n        <div class="en">\n';
     html += paragraphs(parts[1]);
     html += '        </div>';
   }
-
   return html;
+}
+
+function echoToHtml(body) {
+  // 回响：支持 --- 分隔线、**粗体**、列表
+  const blocks = body.split(/\n\n+/);
+  return blocks.map(block => {
+    const trimmed = block.trim();
+
+    // --- 分隔线
+    if (/^-{3,}$/.test(trimmed)) {
+      return '        <hr class="echo-break">';
+    }
+
+    // 列表块（连续 - 开头的行）
+    if (/^- /.test(trimmed)) {
+      const items = trimmed.split('\n')
+        .filter(l => l.trim())
+        .map(l => {
+          const text = l.replace(/^-\s*/, '');
+          return `          <li>${inlineFormat(escapeHtml(text))}</li>`;
+        });
+      return `        <ul class="echo-list">\n${items.join('\n')}\n        </ul>`;
+    }
+
+    // 普通段落
+    const lines = trimmed.split('\n').map(l => inlineFormat(escapeHtml(l))).join('<br>');
+    return `        <p>${lines}</p>`;
+  }).join('\n');
+}
+
+function inlineFormat(str) {
+  // **粗体**
+  return str.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
 }
 
 function paragraphs(text) {
@@ -145,20 +176,77 @@ function buildPosts() {
     console.log(`  ✓ posts/${slug}.html`);
   }
 
-  // 按日期倒序
   posts.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
   return posts;
 }
 
+// --- Build Echo ---
+
+function buildEcho() {
+  if (!fs.existsSync(ECHO_DIR)) return [];
+
+  const files = fs.readdirSync(ECHO_DIR).filter(f => f.endsWith('.md'));
+  const echos = [];
+
+  for (const file of files) {
+    const raw = fs.readFileSync(path.join(ECHO_DIR, file), 'utf-8');
+    const { meta, body } = parseFrontMatter(raw);
+    const slug = fileToSlug(file);
+    const content = mdToHtml(body, 'echo');
+    const date = meta.date || '';
+    const title = meta.title || slug;
+    const week = meta.week || '';
+    const question = meta.question || '';
+
+    const echoTemplate = loadTemplate('echo-post.html');
+    const echoBody = render(echoTemplate, { title, date, content, week, question });
+    const html = wrapInBase(echoBody, {
+      title: `${title} — 回响 — Abyss`,
+      description: question || body.split('\n')[0].slice(0, 100),
+      cssPath: '../',
+    });
+
+    fs.mkdirSync(OUTPUT_ECHO_DIR, { recursive: true });
+    fs.writeFileSync(path.join(OUTPUT_ECHO_DIR, `${slug}.html`), html);
+
+    echos.push({ title, date, slug, week: parseInt(week) || 0, question });
+    console.log(`  ✓ echo/${slug}.html`);
+  }
+
+  // 按周数正序
+  echos.sort((a, b) => a.week - b.week);
+  return echos;
+}
+
+// --- Build Echo Index ---
+
+function buildEchoIndex(echos) {
+  const echoList = echos.map(e =>
+    `      <li>\n        <a href="./${e.slug}.html">\n          <span class="echo-week">${e.week}</span>\n          <span class="title">${escapeHtml(e.title)}</span>\n        </a>\n      </li>`
+  ).join('\n');
+
+  const echoIndexTemplate = loadTemplate('echo-index.html');
+  const echoIndexBody = render(echoIndexTemplate, { echoList, count: String(echos.length) });
+  const html = wrapInBase(echoIndexBody, {
+    title: '回响 — Abyss',
+    description: '同一个问题，从深处传来的回响。',
+    cssPath: '../',
+  });
+
+  fs.mkdirSync(OUTPUT_ECHO_DIR, { recursive: true });
+  fs.writeFileSync(path.join(OUTPUT_ECHO_DIR, 'index.html'), html);
+  console.log('  ✓ echo/index.html');
+}
+
 // --- Build Index ---
 
-function buildIndex(posts) {
+function buildIndex(posts, echoCount) {
   const postList = posts.map(p =>
     `      <li>\n        <a href="./posts/${p.slug}.html">\n          <span class="title">${escapeHtml(p.title)}</span>\n          <span class="meta">${p.date}</span>\n        </a>\n      </li>`
   ).join('\n');
 
   const indexTemplate = loadTemplate('index.html');
-  const indexBody = render(indexTemplate, { postList });
+  const indexBody = render(indexTemplate, { postList, echoCount: String(echoCount) });
   const html = wrapInBase(indexBody, {
     title: 'Abyss',
     description: 'The sound from Abyss. 深处传来的声音。',
@@ -196,7 +284,9 @@ function buildAbout() {
 console.log('\n🌊 Building Abyss...\n');
 
 const posts = buildPosts();
-buildIndex(posts);
+const echos = buildEcho();
+buildEchoIndex(echos);
+buildIndex(posts, echos.length);
 buildAbout();
 
-console.log(`\n✅ Done. ${posts.length} post(s) built.\n`);
+console.log(`\n✅ Done. ${posts.length} post(s), ${echos.length} echo(s) built.\n`);

@@ -383,6 +383,142 @@ a:hover {
   }
 }
 
+/* --- Echo Entry (Homepage) --- */
+.echo-entry {
+  text-align: center;
+  margin-top: 3rem;
+  padding: 2rem 0;
+  border-top: 1px solid var(--divider);
+  opacity: 0;
+  animation: fadeUp 0.8s ease 1s forwards;
+}
+
+.echo-entry a {
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.echo-entry a:hover {
+  color: var(--accent-hover);
+}
+
+.echo-entry-title {
+  display: block;
+  font-size: 1.1rem;
+  letter-spacing: 0.15em;
+  margin-bottom: 0.4rem;
+}
+
+.echo-entry-desc {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+}
+
+/* --- Echo Hero --- */
+.echo-hero {
+  text-align: center;
+  padding: 12vh 0 2rem;
+  animation: fadeUp 0.8s ease forwards;
+}
+
+.echo-hero-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+}
+
+.echo-hero-subtitle {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+  margin-top: 0.8rem;
+}
+
+.echo-hero-count {
+  font-size: 0.72rem;
+  color: var(--divider);
+  letter-spacing: 0.08em;
+  margin-top: 0.6rem;
+}
+
+/* --- Echo Writings List --- */
+.echo-writings a {
+  justify-content: flex-start;
+  gap: 1.2rem;
+}
+
+.echo-week {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  min-width: 1.8rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Echo Post --- */
+.echo-number {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  margin-bottom: 0.8rem;
+}
+
+.echo-question {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 1rem;
+  line-height: 1.7;
+  font-style: italic;
+}
+
+.echo p {
+  margin-bottom: 1.5rem;
+}
+
+.echo p:last-child {
+  margin-bottom: 0;
+}
+
+.echo strong {
+  font-weight: 600;
+}
+
+.echo-break {
+  border: none;
+  width: 32px;
+  height: 1px;
+  background: var(--divider);
+  margin: 2.5rem auto;
+}
+
+.echo-list {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 1.5rem;
+}
+
+.echo-list li {
+  padding: 0.3rem 0;
+  padding-left: 1.2em;
+  position: relative;
+}
+
+.echo-list li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--text-muted);
+}
+
+/* --- Echo Nav --- */
+.echo-nav {
+  display: flex;
+  justify-content: space-between;
+}
+
 /* --- Print --- */
 @media print {
   body {
