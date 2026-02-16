@@ -24,6 +24,7 @@ const ECHO_DIR = path.join(CONTENT_DIR, 'echo');
 const TEMPLATES_DIR = path.join(ROOT, 'templates');
 const OUTPUT_POSTS_DIR = path.join(ROOT, 'posts');
 const OUTPUT_ECHO_DIR = path.join(ROOT, 'echo');
+const AUDIO_DIR = path.join(ROOT, 'audio');
 
 // --- Front Matter Parser ---
 
@@ -144,6 +145,41 @@ function fileToSlug(filename) {
   return path.basename(filename, '.md');
 }
 
+// --- Audio Player ---
+
+function audioPlayerHtml(slug) {
+  const audioFile = path.join(AUDIO_DIR, `${slug}.mp3`);
+  if (!fs.existsSync(audioFile)) return '';
+
+  // Three wave SVGs, each 200% wide with 2 cycles for seamless loop
+  const w1 = `<svg class="wave-svg w1" preserveAspectRatio="none" viewBox="0 0 400 24">
+            <path d="M0,12 C15,7 35,5 55,9 C75,13 95,18 115,14 C135,10 155,5 175,9 C195,13 215,18 235,12 C255,6 275,7 295,11 C315,15 335,18 355,14 C375,10 395,7 400,12" fill="none" stroke-width="1"/>
+          </svg>`;
+  const w2 = `<svg class="wave-svg w2" preserveAspectRatio="none" viewBox="0 0 400 24">
+            <path d="M0,12 C20,16 45,19 70,15 C95,11 115,5 140,9 C165,13 190,17 215,13 C240,9 260,5 285,9 C310,13 335,18 355,14 C375,10 390,7 400,12" fill="none" stroke-width="1"/>
+          </svg>`;
+  const w3 = `<svg class="wave-svg w3" preserveAspectRatio="none" viewBox="0 0 400 24">
+            <path d="M0,12 C25,8 45,6 70,10 C95,14 115,17 145,13 C175,9 195,6 220,10 C245,14 265,17 295,13 C325,9 345,6 370,10 C385,13 395,12 400,12" fill="none" stroke-width="1"/>
+          </svg>`;
+
+  return `      <div class="audio-player">
+        <button class="audio-btn" aria-label="播放">
+          <svg class="icon-play" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg>
+          <svg class="icon-pause" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>
+        </button>
+        <div class="audio-track">
+          <div class="waves-bg">
+          ${w1}${w2}${w3}
+          </div>
+          <div class="waves-progress">
+          ${w1}${w2}${w3}
+          </div>
+        </div>
+        <span class="audio-time">0:00</span>
+        <audio src="../audio/${slug}.mp3" preload="metadata"></audio>
+      </div>`;
+}
+
 // --- Build Posts ---
 
 function buildPosts() {
@@ -160,9 +196,10 @@ function buildPosts() {
     const content = mdToHtml(body, type);
     const date = meta.date || '';
     const title = meta.title || slug;
+    const audio = audioPlayerHtml(slug);
 
     const postTemplate = loadTemplate('post.html');
-    const postBody = render(postTemplate, { title, date, content, type });
+    const postBody = render(postTemplate, { title, date, content, type, audio });
     const html = wrapInBase(postBody, {
       title: `${title} — Abyss`,
       description: body.split('\n')[0].slice(0, 100),
