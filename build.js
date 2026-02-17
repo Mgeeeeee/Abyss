@@ -196,7 +196,7 @@ function buildPosts() {
     const content = mdToHtml(body, type);
     const date = meta.date || '';
     const title = meta.title || slug;
-    const audio = audioPlayerHtml(slug);
+    const audio = type === 'poem' ? audioPlayerHtml(slug) : '';
 
     const postTemplate = loadTemplate('post.html');
     const postBody = render(postTemplate, { title, date, content, type, audio });
