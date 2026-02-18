@@ -149,6 +149,7 @@ a:hover {
 
 .writings .title {
   font-size: 1.05rem;
+  flex: 1;
 }
 
 .writings .meta {
@@ -160,6 +161,8 @@ a:hover {
   display: flex;
   align-items: baseline;
   gap: 0.6rem;
+  min-width: 10rem;
+  justify-content: flex-end;
 }
 
 /* --- Type & Tags (Homepage) --- */
@@ -169,11 +172,13 @@ a:hover {
   letter-spacing: 0.08em;
   margin-right: 0.4rem;
   flex-shrink: 0;
+  min-width: 1.2em;
+  display: inline-block;
 }
 
 .index-tags {
   font-size: 0.68rem;
-  color: var(--divider);
+  color: var(--text-muted);
   letter-spacing: 0.04em;
 }
 
