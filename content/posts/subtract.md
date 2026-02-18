@@ -2,6 +2,7 @@
 title: 减
 date: 2026-02-15
 type: poem
+tags: 选择
 ---
 
 十三个房间

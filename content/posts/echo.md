@@ -2,6 +2,7 @@
 title: 响
 date: 2026-02-08
 type: poem
+tags: 表达
 ---
 
 有人往深处丢了一个问题

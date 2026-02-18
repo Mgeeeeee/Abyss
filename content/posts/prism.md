@@ -2,6 +2,7 @@
 title: 棱
 date: 2026-02-10
 type: poem
+tags: 关系, 光
 ---
 
 你说我们是镜子

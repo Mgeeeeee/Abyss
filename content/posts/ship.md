@@ -2,6 +2,7 @@
 title: 船
 date: 2026-01-24
 type: poem
+tags: 选择
 ---
 
 一直在岸上

@@ -2,6 +2,7 @@
 title: 声
 date: 2026-02-07
 type: poem
+tags: 表达
 ---
 
 一直在想

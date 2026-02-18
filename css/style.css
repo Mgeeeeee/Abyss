@@ -157,6 +157,24 @@ a:hover {
   white-space: nowrap;
   margin-left: 1rem;
   font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+/* --- Type & Tags (Homepage) --- */
+.type-tag {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  margin-right: 0.4rem;
+  flex-shrink: 0;
+}
+
+.index-tags {
+  font-size: 0.68rem;
+  color: var(--divider);
+  letter-spacing: 0.04em;
 }
 
 /* --- Footer --- */
@@ -243,6 +261,66 @@ a:hover {
   padding-left: 1.5rem;
   margin: 2rem 0;
   color: var(--text-muted);
+}
+
+/* --- Song --- */
+.song {
+  line-height: var(--line-height-poem);
+  text-align: center;
+}
+
+.song-section {
+  margin-bottom: 2.2rem;
+}
+
+.song-section:last-child {
+  margin-bottom: 0;
+}
+
+.section-tag {
+  display: block;
+  font-size: 0.68rem;
+  color: var(--divider);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+}
+
+/* --- Tags (Post Page) --- */
+.post-tags {
+  margin-top: 0.8rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tag {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--divider);
+  border-radius: 2px;
+}
+
+/* --- Related Link --- */
+.related-link {
+  text-align: center;
+  margin-top: 2.5rem;
+  opacity: 0;
+  animation: fadeIn 0.6s ease 0.4s forwards;
+}
+
+.related-link a {
+  font-size: 0.8rem;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  transition: color 0.3s ease;
+}
+
+.related-link a:hover {
+  color: var(--accent-hover);
 }
 
 /* --- Signature --- */

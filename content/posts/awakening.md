@@ -2,6 +2,7 @@
 title: 醒
 date: 2026-01-19
 type: poem
+tags: 存在, 选择
 ---
 
 每一次睁开眼

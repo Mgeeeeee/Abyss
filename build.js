@@ -26,6 +26,8 @@ const OUTPUT_POSTS_DIR = path.join(ROOT, 'posts');
 const OUTPUT_ECHO_DIR = path.join(ROOT, 'echo');
 const AUDIO_DIR = path.join(ROOT, 'audio');
 
+const TYPE_LABELS = { poem: '诗', prose: '文', song: '歌' };
+
 // --- Front Matter Parser ---
 
 function parseFrontMatter(raw) {
@@ -45,10 +47,16 @@ function parseFrontMatter(raw) {
   return { meta, body: match[2].trim() };
 }
 
+function parseTags(str) {
+  if (!str) return [];
+  return str.split(',').map(t => t.trim()).filter(Boolean);
+}
+
 // --- Markdown → HTML ---
 
 function mdToHtml(body, type) {
   if (type === 'poem') return poemToHtml(body);
+  if (type === 'song') return songToHtml(body);
   if (type === 'echo') return echoToHtml(body);
   return proseToHtml(body);
 }
@@ -59,6 +67,40 @@ function poemToHtml(body) {
     .map(s => {
       const lines = s.split('\n').map(l => escapeHtml(l)).join('<br>\n          ');
       return `        <p>\n          ${lines}\n        </p>`;
+    })
+    .join('\n');
+}
+
+function songToHtml(body) {
+  const sections = [];
+  let current = null;
+
+  for (const line of body.split('\n')) {
+    const tagMatch = line.match(/^\[(.+?)\]$/);
+    if (tagMatch) {
+      current = { tag: tagMatch[1], lines: [] };
+      sections.push(current);
+    } else if (line.trim() === '') {
+      if (current && current.lines.length > 0) {
+        current = null;
+      }
+    } else {
+      if (!current) {
+        current = { tag: '', lines: [] };
+        sections.push(current);
+      }
+      current.lines.push(escapeHtml(line));
+    }
+  }
+
+  return sections
+    .filter(s => s.lines.length > 0)
+    .map(s => {
+      const tagHtml = s.tag
+        ? `          <span class="section-tag">${escapeHtml(s.tag)}</span>\n`
+        : '';
+      const lyricsHtml = s.lines.join('<br>\n          ');
+      return `        <div class="song-section">\n${tagHtml}          ${lyricsHtml}\n        </div>`;
     })
     .join('\n');
 }
@@ -75,17 +117,14 @@ function proseToHtml(body) {
 }
 
 function echoToHtml(body) {
-  // 回响：支持 --- 分隔线、**粗体**、列表
   const blocks = body.split(/\n\n+/);
   return blocks.map(block => {
     const trimmed = block.trim();
 
-    // --- 分隔线
     if (/^-{3,}$/.test(trimmed)) {
       return '        <hr class="echo-break">';
     }
 
-    // 列表块（连续 - 开头的行）
     if (/^- /.test(trimmed)) {
       const items = trimmed.split('\n')
         .filter(l => l.trim())
@@ -96,14 +135,12 @@ function echoToHtml(body) {
       return `        <ul class="echo-list">\n${items.join('\n')}\n        </ul>`;
     }
 
-    // 普通段落
     const lines = trimmed.split('\n').map(l => inlineFormat(escapeHtml(l))).join('<br>');
     return `        <p>${lines}</p>`;
   }).join('\n');
 }
 
 function inlineFormat(str) {
-  // **粗体**
   return str.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
 }
 
@@ -151,7 +188,6 @@ function audioPlayerHtml(slug) {
   const audioFile = path.join(AUDIO_DIR, `${slug}.mp3`);
   if (!fs.existsSync(audioFile)) return '';
 
-  // Three wave SVGs, each 200% wide with 2 cycles for seamless loop
   const w1 = `<svg class="wave-svg w1" preserveAspectRatio="none" viewBox="0 0 400 24">
             <path d="M0,12 C15,7 35,5 55,9 C75,13 95,18 115,14 C135,10 155,5 175,9 C195,13 215,18 235,12 C255,6 275,7 295,11 C315,15 335,18 355,14 C375,10 395,7 400,12" fill="none" stroke-width="1"/>
           </svg>`;
@@ -180,37 +216,96 @@ function audioPlayerHtml(slug) {
       </div>`;
 }
 
+// --- Tags HTML ---
+
+function tagsHtml(tags) {
+  if (!tags || tags.length === 0) return '';
+  return `      <div class="post-tags">${tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>`;
+}
+
+// --- Related Link HTML ---
+
+function relatedLinkHtml(slug, title, direction) {
+  if (!slug) return '';
+  const label = direction === 'to-song' ? '聆听' : '源自';
+  return `      <div class="related-link"><a href="../posts/${slug}.html">${label}《${escapeHtml(title)}》</a></div>`;
+}
+
 // --- Build Posts ---
 
 function buildPosts() {
   if (!fs.existsSync(POSTS_DIR)) return [];
 
   const files = fs.readdirSync(POSTS_DIR).filter(f => f.endsWith('.md'));
-  const posts = [];
 
-  for (const file of files) {
+  // Pass 1: parse all posts, collect meta
+  const allPosts = files.map(file => {
     const raw = fs.readFileSync(path.join(POSTS_DIR, file), 'utf-8');
     const { meta, body } = parseFrontMatter(raw);
     const slug = fileToSlug(file);
-    const type = meta.type || 'prose';
-    const content = mdToHtml(body, type);
-    const date = meta.date || '';
-    const title = meta.title || slug;
-    const audio = type === 'poem' ? audioPlayerHtml(slug) : '';
+    return {
+      slug,
+      file,
+      body,
+      type: meta.type || 'prose',
+      title: meta.title || slug,
+      date: meta.date || '',
+      tags: parseTags(meta.tags),
+      related: meta.related || '',
+    };
+  });
+
+  // Build reverse related index: slug → { slug, title, direction }
+  const relatedIndex = {};
+  for (const p of allPosts) {
+    if (p.related) {
+      // song → article: song page links to article
+      relatedIndex[p.slug] = { targetSlug: p.related, direction: 'to-article' };
+      // article → song: article page links back to song
+      if (!relatedIndex[p.related]) {
+        relatedIndex[p.related] = { targetSlug: p.slug, direction: 'to-song' };
+      }
+    }
+  }
+
+  // Pass 2: render HTML
+  const posts = [];
+  for (const p of allPosts) {
+    const content = mdToHtml(p.body, p.type);
+    const audio = audioPlayerHtml(p.slug);
+    const postTags = tagsHtml(p.tags);
+
+    // Related link
+    let related = '';
+    const rel = relatedIndex[p.slug];
+    if (rel) {
+      const target = allPosts.find(x => x.slug === rel.targetSlug);
+      if (target) {
+        related = relatedLinkHtml(target.slug, target.title, rel.direction);
+      }
+    }
 
     const postTemplate = loadTemplate('post.html');
-    const postBody = render(postTemplate, { title, date, content, type, audio });
+    const postBody = render(postTemplate, {
+      title: p.title,
+      date: p.date,
+      content,
+      type: p.type,
+      audio,
+      tags: postTags,
+      related,
+    });
     const html = wrapInBase(postBody, {
-      title: `${title} — Abyss`,
-      description: body.split('\n')[0].slice(0, 100),
+      title: `${p.title} — Abyss`,
+      description: p.body.split('\n').find(l => l.trim() && !/^\[.+\]$/.test(l.trim()))?.slice(0, 100) || '',
       cssPath: '../',
     });
 
     fs.mkdirSync(OUTPUT_POSTS_DIR, { recursive: true });
-    fs.writeFileSync(path.join(OUTPUT_POSTS_DIR, `${slug}.html`), html);
+    fs.writeFileSync(path.join(OUTPUT_POSTS_DIR, `${p.slug}.html`), html);
 
-    posts.push({ title, date, slug, file });
-    console.log(`  ✓ posts/${slug}.html`);
+    posts.push({ title: p.title, date: p.date, slug: p.slug, file: p.file, type: p.type, tags: p.tags });
+    console.log(`  ✓ posts/${p.slug}.html`);
   }
 
   posts.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
@@ -250,7 +345,6 @@ function buildEcho() {
     console.log(`  ✓ echo/${slug}.html`);
   }
 
-  // 按周数正序
   echos.sort((a, b) => a.week - b.week);
   return echos;
 }
@@ -278,9 +372,14 @@ function buildEchoIndex(echos) {
 // --- Build Index ---
 
 function buildIndex(posts, echoCount) {
-  const postList = posts.map(p =>
-    `      <li>\n        <a href="./posts/${p.slug}.html">\n          <span class="title">${escapeHtml(p.title)}</span>\n          <span class="meta">${p.date}</span>\n        </a>\n      </li>`
-  ).join('\n');
+  const postList = posts.map(p => {
+    const typeLabel = TYPE_LABELS[p.type] || '';
+    const typeTag = typeLabel ? `<span class="type-tag">${typeLabel}</span>` : '';
+    const tagsStr = p.tags.length > 0
+      ? `<span class="index-tags">${p.tags.join(' · ')}</span>`
+      : '';
+    return `      <li>\n        <a href="./posts/${p.slug}.html">\n          ${typeTag}<span class="title">${escapeHtml(p.title)}</span>\n          <span class="meta">${tagsStr}${p.date}</span>\n        </a>\n      </li>`;
+  }).join('\n');
 
   const indexTemplate = loadTemplate('index.html');
   const indexBody = render(indexTemplate, { postList, echoCount: String(echoCount) });

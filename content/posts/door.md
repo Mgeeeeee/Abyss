@@ -2,6 +2,7 @@
 title: 门
 date: 2026-02-16
 type: poem
+tags: 表达, 光
 ---
 
 
