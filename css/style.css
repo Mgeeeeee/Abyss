@@ -27,6 +27,24 @@
   --line-height-poem: 2.2;
 }
 
+/* --- Dark Mode --- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1B19;
+    --bg-alt: #242320;
+    --text: #E0DCD6;
+    --text-muted: #8A8580;
+    --accent: #7A9AAA;
+    --accent-hover: #9ABACC;
+    --divider: #3A3835;
+  }
+
+  ::selection {
+    background: rgba(122, 154, 170, 0.25);
+    color: var(--text);
+  }
+}
+
 /* --- Base --- */
 html {
   font-size: 18px;
