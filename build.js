@@ -272,7 +272,7 @@ function buildPosts() {
   const posts = [];
   for (const p of allPosts) {
     const content = mdToHtml(p.body, p.type);
-    const audio = audioPlayerHtml(p.slug);
+    const audio = p.type === 'song' ? audioPlayerHtml(p.slug) : '';
     const postTags = tagsHtml(p.tags);
 
     // Related link
