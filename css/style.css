@@ -272,11 +272,6 @@ a:hover {
 /* --- Prose --- */
 .prose p {
   margin-bottom: 1.5rem;
-  text-indent: 2em;
-}
-
-.prose p:first-child {
-  text-indent: 0;
 }
 
 .prose blockquote {
